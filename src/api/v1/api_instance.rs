@@ -1,4 +1,4 @@
-use reqwest::r#async::Client;
+use reqwest::Client;
 
 #[derive(Debug, Clone)]
 pub struct BaseUrl(&'static str);

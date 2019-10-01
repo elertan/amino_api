@@ -64,10 +64,13 @@ pub async fn login_with_email<'a>(
     let client = &api_instance.client;
 
     let post_data: LoginWithEmailPostData = params.into();
-    let json_data = serde_json::to_string(&post_data)?;
-    let mut response = client.post(&url).body(json_data).send().await?;
-    let response_text = response.text()?;
-    let result = serde_json::from_str(&response_text)?;
+    let result = client
+        .post(&url)
+        .json(&post_data)
+        .send()
+        .await?
+        .json()
+        .await?;
     Ok(result)
 }
 
@@ -82,7 +85,9 @@ mod tests {
             email: "test_email_blabladasdaw1231@adasdaasdaerew.com",
             password: "asdnasdbahsnjdasbdas",
         };
-        let result = futures::executor::block_on(login_with_email(&mut api_instance, &params));
+        let mut rt = tokio::runtime::current_thread::Runtime::new().expect("new rt");
+        let result = rt.block_on(login_with_email(&mut api_instance, &params));
+//        let result = futures::executor::block_on(login_with_email(&mut api_instance, &params));
         dbg!(&result);
         assert!(result.is_ok());
         let data = result.unwrap();
@@ -104,7 +109,8 @@ mod tests {
             email: &email,
             password: &password,
         };
-        let result = futures::executor::block_on(login_with_email(&mut api_instance, &params));
+        let mut rt = tokio::runtime::current_thread::Runtime::new().expect("new rt");
+        let result = rt.block_on(login_with_email(&mut api_instance, &params));
         dbg!(&result);
         assert!(result.is_ok());
         let data = result.unwrap();
