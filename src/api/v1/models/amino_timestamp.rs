@@ -4,7 +4,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone)]
-pub struct AminoTimestamp(u128);
+pub struct AminoTimestamp(u64);
 
 impl AminoTimestamp {
     pub fn from_current_time() -> Self {
@@ -14,6 +14,10 @@ impl AminoTimestamp {
             .expect("Time went backwards");
         Self(since_the_epoch.as_millis())
     }
+
+    pub fn as_u64(&self) -> u64 {
+        self.0
+    }
 }
 
 impl Serialize for AminoTimestamp {
@@ -21,7 +25,7 @@ impl Serialize for AminoTimestamp {
     where
         S: Serializer,
     {
-        serializer.serialize_u64(self.0 as u64)
+        serializer.serialize_u64(self.0)
     }
 }
 
@@ -47,6 +51,6 @@ impl<'de> Visitor<'de> for AminoTimestampVisitor {
     where
         E: serde::de::Error,
     {
-        Ok(AminoTimestamp(value as u128))
+        Ok(AminoTimestamp(value))
     }
 }
