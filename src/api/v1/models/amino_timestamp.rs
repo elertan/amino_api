@@ -12,7 +12,7 @@ impl AminoTimestamp {
         let since_the_epoch = start
             .duration_since(UNIX_EPOCH)
             .expect("Time went backwards");
-        Self(since_the_epoch.as_millis())
+        Self(since_the_epoch.as_millis() as u64)
     }
 
     pub fn as_u64(&self) -> u64 {

@@ -1,10 +1,18 @@
-use crate::api::v1::models::amino_timestamp::AminoTimestamp;
-
 #[derive(Debug, Clone)]
 pub struct AminoDeviceId(String);
 
 impl AminoDeviceId {
-    pub fn generate() -> Self {}
+    pub fn generate() -> Self {
+        unimplemented!()
+    }
+}
+
+fn get_unique_pseudo_id() -> Vec<u8> {
+    let str = format!("{}{}{}", device_id_hw(), device_id_1(), device_id_2());
+    let mut bytes = str.bytes();
+    (0..str.len())
+        .map(|i| bytes.nth(i).unwrap())
+        .collect::<Vec<u8>>()
 }
 
 fn device_id_hw() -> String {
@@ -26,6 +34,14 @@ fn device_id_hw() -> String {
         BUILD_MODEL,
         BUILD_PRODUCT
     )
+}
+
+fn device_id_1() -> String {
+    unimplemented!()
+}
+
+fn device_id_2() -> String {
+    unimplemented!()
 }
 
 /*
