@@ -2,6 +2,8 @@ use crate::api::v1::api_instance::ApiInstance;
 use crate::api::v1::models::account::Account;
 use crate::api::v1::models::amino_timestamp::AminoTimestamp;
 use crate::api::v1::models::api_response::ApiResponse;
+use uuid::Uuid;
+use crate::api::v1::models::user::User;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LoginWithEmailParams<'a> {
@@ -12,6 +14,11 @@ pub struct LoginWithEmailParams<'a> {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LoginWithEmailResult {
     pub account: Option<Account>,
+    pub auid: Option<Uuid>,
+    pub secret: Option<String>,
+    pub sid: Option<String>,
+    #[serde(rename="userProfile")]
+    pub user_profile: Option<User>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -112,7 +119,7 @@ mod tests {
         let result = rt.block_on(login_with_email(&mut api_instance, &params));
         dbg!(&result);
         assert!(result.is_ok());
-        let data = result.unwrap();
+        let data: ApiResponse<LoginWithEmailResult> = result.unwrap();
         assert_eq!(data.api_info.message, "OK".to_string());
     }
 }

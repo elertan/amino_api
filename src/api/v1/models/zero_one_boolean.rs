@@ -1,8 +1,8 @@
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ZeroOneBoolean(u8);
 
-impl Into<bool> for ZeroOneBoolean {
-    fn into(self) -> bool {
+impl ZeroOneBoolean {
+    pub fn as_bool(&self) -> bool {
         self.0 == 1
     }
 }

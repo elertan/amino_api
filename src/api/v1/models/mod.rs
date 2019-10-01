@@ -4,3 +4,4 @@ pub mod api_response;
 pub mod zero_one_boolean;
 
 pub mod account;
+pub mod user;
