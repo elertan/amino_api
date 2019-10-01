@@ -54,6 +54,8 @@ impl<'a> From<&LoginWithEmailParams<'a>> for LoginWithEmailPostData {
             bundle_id: "com.narvii.master".to_string(),
             timezone: -420,
             device_id:
+//            "FF1676f6c64666973685f783836676f6f676c6578383667656e657269635f783836476f6f676c65416e64726f69642053444b206275696c7420666f722078383673646b5f6770686f6e655f783836"
+//                .to_string(),
                 "01760e21ca2ce3a5e012738ce519e8cafd51476d3bfd91f86fd3c04292fdf3d700694e4f255fe6fd92"
                     .to_string(),
             email: String::from(params.email),

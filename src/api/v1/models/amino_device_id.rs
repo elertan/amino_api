@@ -3,16 +3,27 @@ pub struct AminoDeviceId(String);
 
 impl AminoDeviceId {
     pub fn generate() -> Self {
-        unimplemented!()
+        let pseudo_id = get_unique_pseudo_id();
+        const DIDSSEC: &'static str = "54D50523CCF670A4509650E84D11CAEC";
+        const DIDSVER: u8 = 1;
+
+        let string = native_helper_c(pseudo_id, /*DIDSSEC,*/ DIDSVER);
+        AminoDeviceId(string)
     }
 }
 
+fn native_helper_c(b_vec: Vec<u8>, /*b_vec_2: Vec<u8>,*/ i: u8) -> String {
+    let string: String = b_vec
+        .into_iter()
+        .map(|val| format!("{:x?}", val))
+        .collect::<Vec<String>>()
+        .join("");
+    format!("FF{:x?}{}", i, string)
+}
+
 fn get_unique_pseudo_id() -> Vec<u8> {
-    let str = format!("{}{}{}", device_id_hw(), device_id_1(), device_id_2());
-    let mut bytes = str.bytes();
-    (0..str.len())
-        .map(|i| bytes.nth(i).unwrap())
-        .collect::<Vec<u8>>()
+    let string = format!("{}{}{}", device_id_hw(), device_id_1(), device_id_2());
+    string.bytes().collect::<Vec<u8>>()
 }
 
 fn device_id_hw() -> String {
@@ -37,11 +48,24 @@ fn device_id_hw() -> String {
 }
 
 fn device_id_1() -> String {
-    unimplemented!()
+    //    unimplemented!()
+    "".to_string()
 }
 
 fn device_id_2() -> String {
-    unimplemented!()
+    //    unimplemented!()
+    "".to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn should_work() {
+        let id = AminoDeviceId::generate();
+        assert!(true)
+    }
 }
 
 /*
