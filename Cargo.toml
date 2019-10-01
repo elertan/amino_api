@@ -18,6 +18,10 @@ failure = "0.1.5"
 [dev-dependencies]
 dotenv = "0.14.1"
 
+[dependencies.futures-preview]
+version = "0.3.0-alpha.19"
+features = ["async-await"]
+
 [dependencies.chrono]
 version = "0.4.9"
 features = ["serde"]

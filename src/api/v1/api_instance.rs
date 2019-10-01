@@ -1,4 +1,4 @@
-use reqwest::Client;
+use reqwest::r#async::Client;
 
 #[derive(Debug, Clone)]
 pub struct BaseUrl(&'static str);
@@ -7,7 +7,7 @@ impl<'a> BaseUrl {
     pub fn new(url: &'static str) -> Self {
         BaseUrl(url)
     }
-    
+
     pub fn create_full_url(&self, path: &'a str) -> String {
         format!("{}{}", self.0, path)
     }
