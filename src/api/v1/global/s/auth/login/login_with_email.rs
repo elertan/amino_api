@@ -1,6 +1,6 @@
 use crate::api::v1::api_instance::ApiInstance;
+use crate::api::v1::models::account::Account;
 use crate::api::v1::models::amino_timestamp::AminoTimestamp;
-use crate::api::v1::models::api_info::ApiInfo;
 use crate::api::v1::models::api_response::ApiResponse;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -10,7 +10,9 @@ pub struct LoginWithEmailParams<'a> {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct LoginWithEmailResult {}
+pub struct LoginWithEmailResult {
+    pub account: Option<Account>,
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct LoginWithEmailPostData {
@@ -85,5 +87,27 @@ mod tests {
         assert!(result.is_ok());
         let data = result.unwrap();
         assert_eq!(data.api_info.message, "Account does not exist.".to_string());
+    }
+
+    #[test]
+    fn login_should_work() {
+        crate::helpers::testing::load_test_env();
+        let email =
+            dotenv::var("API_V1_GLOBAL_S_AUTH_LOGIN_LOGIN_WITH_EMAIL_LOGIN_SHOULD_WORK_EMAIL")
+                .expect("env incorrect");
+        let password =
+            dotenv::var("API_V1_GLOBAL_S_AUTH_LOGIN_LOGIN_WITH_EMAIL_LOGIN_SHOULD_WORK_PASSWORD")
+                .expect("env incorrect");
+
+        let mut api_instance = ApiInstance::default();
+        let params = LoginWithEmailParams {
+            email: &email,
+            password: &password,
+        };
+        let result = login_with_email(&mut api_instance, &params);
+        dbg!(&result);
+        assert!(result.is_ok());
+        let data = result.unwrap();
+        assert_eq!(data.api_info.message, "OK".to_string());
     }
 }

@@ -3,3 +3,4 @@
 .idea/
 .env
 Charles-session.chls
+/tests.env
