@@ -87,7 +87,6 @@ mod tests {
         };
         let mut rt = tokio::runtime::current_thread::Runtime::new().expect("new rt");
         let result = rt.block_on(login_with_email(&mut api_instance, &params));
-//        let result = futures::executor::block_on(login_with_email(&mut api_instance, &params));
         dbg!(&result);
         assert!(result.is_ok());
         let data = result.unwrap();
