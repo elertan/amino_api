@@ -1,9 +1,10 @@
 use crate::api::v1::api_instance::ApiInstance;
 use crate::api::v1::models::account::Account;
-use crate::api::v1::models::amino_timestamp::AminoTimestamp;
 use crate::api::v1::models::api_response::ApiResponse;
 use uuid::Uuid;
 use crate::api::v1::models::user::User;
+use crate::api::v1::types::device_id::DeviceId;
+use crate::api::v1::types::timestamp::Timestamp;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LoginWithEmailParams<'a> {
@@ -28,14 +29,14 @@ struct LoginWithEmailPostData {
     pub client_type: u8,
     #[serde(rename = "systemPushEnabled")]
     pub system_push_enabled: u8,
-    pub timestamp: AminoTimestamp,
+    pub timestamp: Timestamp,
     pub locale: String,
     pub action: String,
     #[serde(rename = "bundleID")]
     pub bundle_id: String,
     pub timezone: i32,
     #[serde(rename = "deviceID")]
-    pub device_id: String,
+    pub device_id: DeviceId,
     pub email: String,
     pub v: u8,
     #[serde(rename = "clientCallbackURL")]
@@ -48,16 +49,12 @@ impl<'a> From<&LoginWithEmailParams<'a>> for LoginWithEmailPostData {
             secret: format!("0 {}", params.password),
             client_type: 100,
             system_push_enabled: 0,
-            timestamp: AminoTimestamp::from_current_time(),
+            timestamp: Timestamp::from_current_time(),
             locale: "en_US".to_string(),
             action: "normal".to_string(),
             bundle_id: "com.narvii.master".to_string(),
             timezone: -420,
-            device_id:
-//            "FF1676f6c64666973685f783836676f6f676c6578383667656e657269635f783836476f6f676c65416e64726f69642053444b206275696c7420666f722078383673646b5f6770686f6e655f783836"
-//                .to_string(),
-                "01760e21ca2ce3a5e012738ce519e8cafd51476d3bfd91f86fd3c04292fdf3d700694e4f255fe6fd92"
-                    .to_string(),
+            device_id: DeviceId::from_str("01760e21ca2ce3a5e012738ce519e8cafd51476d3bfd91f86fd3c04292fdf3d700694e4f255fe6fd92"),
             email: String::from(params.email),
             v: 2,
             client_callback_url: r#"narviiapp://default"#.to_string(),

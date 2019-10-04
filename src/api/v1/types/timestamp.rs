@@ -4,9 +4,9 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone)]
-pub struct AminoTimestamp(u64);
+pub struct Timestamp(u64);
 
-impl AminoTimestamp {
+impl Timestamp {
     pub fn from_current_time() -> Self {
         let start = SystemTime::now();
         let since_the_epoch = start
@@ -20,7 +20,7 @@ impl AminoTimestamp {
     }
 }
 
-impl Serialize for AminoTimestamp {
+impl Serialize for Timestamp {
     fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
     where
         S: Serializer,
@@ -29,19 +29,19 @@ impl Serialize for AminoTimestamp {
     }
 }
 
-impl<'de> Deserialize<'de> for AminoTimestamp {
+impl<'de> Deserialize<'de> for Timestamp {
     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_u64(AminoTimestampVisitor)
+        deserializer.deserialize_u64(TimestampVisitor)
     }
 }
 
-struct AminoTimestampVisitor;
+struct TimestampVisitor;
 
-impl<'de> Visitor<'de> for AminoTimestampVisitor {
-    type Value = AminoTimestamp;
+impl<'de> Visitor<'de> for TimestampVisitor {
+    type Value = Timestamp;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         formatter.write_str("Expected a large positive number")
@@ -51,6 +51,6 @@ impl<'de> Visitor<'de> for AminoTimestampVisitor {
     where
         E: serde::de::Error,
     {
-        Ok(AminoTimestamp(value))
+        Ok(Timestamp(value))
     }
 }

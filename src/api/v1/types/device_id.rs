@@ -1,14 +1,60 @@
-#[derive(Debug, Clone)]
-pub struct AminoDeviceId(String);
+use serde::de::Visitor;
+use serde::export::fmt;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-impl AminoDeviceId {
+#[derive(Debug, Clone)]
+pub struct DeviceId(String);
+
+impl DeviceId {
     pub fn generate() -> Self {
+        // Not working correctly.
+        unimplemented!();
+
         let pseudo_id = get_unique_pseudo_id();
         const DIDSSEC: &'static str = "54D50523CCF670A4509650E84D11CAEC";
         const DIDSVER: u8 = 1;
 
         let string = native_helper_c(pseudo_id, /*DIDSSEC,*/ DIDSVER);
-        AminoDeviceId(string)
+        DeviceId(string)
+    }
+
+    pub fn from_str(data: &str) -> Self {
+        DeviceId(data.to_string())
+    }
+}
+
+impl Serialize for DeviceId {
+    fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(self.0.as_str())
+    }
+}
+
+impl<'de> Deserialize<'de> for DeviceId {
+    fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_string(DeviceIdVisitor)
+    }
+}
+
+struct DeviceIdVisitor;
+
+impl<'de> Visitor<'de> for DeviceIdVisitor {
+    type Value = DeviceId;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("Expected a string")
+    }
+
+    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        Ok(DeviceId::from_str(value))
     }
 }
 
@@ -63,7 +109,7 @@ mod tests {
 
     #[test]
     fn should_work() {
-        let id = AminoDeviceId::generate();
+        let id = DeviceId::generate();
         assert!(true)
     }
 }
