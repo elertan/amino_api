@@ -1,5 +1,5 @@
 use crate::api::v1::models::account::AccountExtensions;
-use crate::api::v1::models::zero_one_boolean::ZeroOneBoolean;
+use crate::api::v1::types::zero_one_boolean::ZeroOneBoolean;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
