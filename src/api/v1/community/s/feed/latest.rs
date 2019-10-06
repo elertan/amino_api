@@ -41,7 +41,6 @@ pub async fn fetch_latest_posts<'a>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use futures::StreamExt;
 
     #[test]
     fn fetch_posts_without_paging_token_should_work() {
