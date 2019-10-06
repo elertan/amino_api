@@ -13,7 +13,7 @@ pub struct FetchLatestPostsParams<'a> {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FetchLatestPostsResult {
     paging: PagingInfo,
-    #[serde(rename="blogList")]
+    #[serde(rename = "blogList")]
     blog_list: Vec<Blog>,
 }
 
@@ -41,19 +41,20 @@ pub async fn fetch_latest_posts<'a>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::StreamExt;
 
     #[test]
     fn fetch_posts_without_paging_token_should_work() {
         let mut rt = tokio::runtime::current_thread::Runtime::new().expect("new rt");
 
         crate::helpers::testing::load_test_env();
-        let api: ApiInstance =  rt.block_on(crate::helpers::testing::get_authorized_v1_api_instance());
+        let api: ApiInstance = rt.block_on(crate::helpers::testing::get_authorized_v1_api_instance());
         let community = Community::from_id(3);
 
         let result: Result<ApiResponse<FetchLatestPostsResult>, failure::Error> = rt.block_on(
             fetch_latest_posts(&api, &community, &FetchLatestPostsParams {
                 size: 25,
-                paging_token: None
+                paging_token: None,
             })
         );
 
@@ -66,13 +67,13 @@ mod tests {
         let mut rt = tokio::runtime::current_thread::Runtime::new().expect("new rt");
 
         crate::helpers::testing::load_test_env();
-        let api: ApiInstance =  rt.block_on(crate::helpers::testing::get_authorized_v1_api_instance());
+        let api: ApiInstance = rt.block_on(crate::helpers::testing::get_authorized_v1_api_instance());
         let community = Community::from_id(3);
 
         let result: Result<ApiResponse<FetchLatestPostsResult>, failure::Error> = rt.block_on(
             fetch_latest_posts(&api, &community, &FetchLatestPostsParams {
                 size: 25,
-                paging_token: None
+                paging_token: None,
             })
         );
 
@@ -84,11 +85,40 @@ mod tests {
         let next_result: Result<ApiResponse<FetchLatestPostsResult>, failure::Error> = rt.block_on(
             fetch_latest_posts(&api, &community, &FetchLatestPostsParams {
                 size: 25,
-                paging_token: Some(paging_token.as_str())
+                paging_token: Some(paging_token.as_str()),
             })
         );
 
         dbg!(&next_result);
         assert!(next_result.is_ok());
+    }
+
+    #[test]
+    fn fetch_posts_with_paging_token_x10_should_work() {
+        let mut rt = tokio::runtime::current_thread::Runtime::new().expect("new rt");
+
+        crate::helpers::testing::load_test_env();
+        let api: ApiInstance = rt.block_on(crate::helpers::testing::get_authorized_v1_api_instance());
+        let community = Community::from_id(3);
+
+
+        let mut paging_token_outer: Option<String> = None;
+        for i in 0..9 {
+            let paging_token = match paging_token_outer {
+                Some(ref val) => Some(val.as_str()),
+                None => None
+            };
+            let result: Result<ApiResponse<FetchLatestPostsResult>, failure::Error> = rt.block_on(
+                fetch_latest_posts(&api, &community, &FetchLatestPostsParams {
+                    size: 25,
+                    paging_token,
+                })
+            );
+
+            dbg!(&result);
+            assert!(result.is_ok());
+            let token = result.unwrap().result.paging.next_page_token.unwrap();
+            paging_token_outer = Some(token);
+        }
     }
 }
