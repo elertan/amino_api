@@ -26,13 +26,13 @@ pub struct DeviceInfo {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AccountExtensions {
     #[serde(rename = "adsLevel")]
-    pub ads_level: u8,
+    pub ads_level: Option<u8>,
     #[serde(rename = "adsEnabled")]
-    pub ads_enabled: bool,
+    pub ads_enabled: Option<bool>,
     #[serde(rename = "deviceInfo")]
-    pub device_info: DeviceInfo,
+    pub device_info: Option<DeviceInfo>,
     #[serde(rename = "adsFlags")]
-    pub ads_flags: u8,
+    pub ads_flags: Option<u8>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -53,7 +53,7 @@ pub struct Account {
     pub date_of_birth: Option<DateTime<Utc>>,
     pub role: UserRole,
     #[serde(rename = "aminoId")]
-    pub amino_id: String,
+    pub amino_id: Option<String>,
     pub latitude: Option<i64>,
     #[serde(rename = "phoneNumber")]
     pub phone_number: Option<String>,

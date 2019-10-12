@@ -1,4 +1,4 @@
-use crate::api::v1::api_instance::ApiInstance;
+use crate::api::v1::api_instance::{ApiInstance, LoginData};
 use crate::api::v1::models::account::Account;
 use crate::api::v1::models::api_response::ApiResponse;
 use uuid::Uuid;
@@ -63,21 +63,28 @@ impl<'a> From<&LoginWithEmailParams<'a>> for LoginWithEmailPostData {
 }
 
 pub async fn login_with_email<'a>(
-    api_instance: &mut ApiInstance,
     params: &'a LoginWithEmailParams<'a>,
-) -> Result<ApiResponse<LoginWithEmailResult>, failure::Error> {
+) -> Result<(ApiResponse<LoginWithEmailResult>, ApiInstance), failure::Error> {
+    let api_instance = ApiInstance::default();
     let url = api_instance.base_url.create_full_url("g/s/auth/login");
     let client = &api_instance.client;
 
     let post_data: LoginWithEmailPostData = params.into();
-    let result = client
+    let response = client
         .post(&url)
         .json(&post_data)
         .send()
-        .await?
-        .json()
         .await?;
-    Ok(result)
+    let response_text = response.text().await?;
+    let result: ApiResponse<LoginWithEmailResult> = serde_json::from_str(&response_text)?;
+
+    let data = result.result.clone();
+
+    Ok((result, ApiInstance::with_login_data(&LoginData {
+        device_id: post_data.device_id.as_string().clone(),
+        auid: data.auid.unwrap().to_string(),
+        sid: data.sid.unwrap()
+    })?))
 }
 
 #[cfg(test)]
@@ -86,16 +93,15 @@ mod tests {
 
     #[test]
     fn login_should_fail() {
-        let mut api_instance = ApiInstance::default();
         let params = LoginWithEmailParams {
             email: "test_email_blabladasdaw1231@adasdaasdaerew.com",
             password: "asdnasdbahsnjdasbdas",
         };
         let mut rt = tokio::runtime::current_thread::Runtime::new().expect("new rt");
-        let result = rt.block_on(login_with_email(&mut api_instance, &params));
+        let result = rt.block_on(login_with_email(&params));
         dbg!(&result);
         assert!(result.is_ok());
-        let data = result.unwrap();
+        let data = result.unwrap().0;
         assert_eq!(data.api_info.message, "Account does not exist.".to_string());
     }
 
@@ -109,16 +115,15 @@ mod tests {
             dotenv::var("API_V1_GLOBAL_S_AUTH_LOGIN_LOGIN_WITH_EMAIL_LOGIN_SHOULD_WORK_PASSWORD")
                 .expect("env incorrect");
 
-        let mut api_instance = ApiInstance::default();
         let params = LoginWithEmailParams {
             email: &email,
             password: &password,
         };
         let mut rt = tokio::runtime::current_thread::Runtime::new().expect("new rt");
-        let result = rt.block_on(login_with_email(&mut api_instance, &params));
+        let result = rt.block_on(login_with_email(&params));
         dbg!(&result);
         assert!(result.is_ok());
-        let data: ApiResponse<LoginWithEmailResult> = result.unwrap();
+        let data: ApiResponse<LoginWithEmailResult> = result.unwrap().0;
         assert_eq!(data.api_info.message, "OK".to_string());
     }
 }

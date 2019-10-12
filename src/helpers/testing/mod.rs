@@ -7,8 +7,6 @@ pub fn load_test_env() {
 }
 
 pub async fn get_authorized_v1_api_instance() -> ApiInstance {
-    let mut api = ApiInstance::default();
-
     let email =
         dotenv::var("API_V1_LOGIN_EMAIL")
             .expect("env incorrect");
@@ -16,10 +14,10 @@ pub async fn get_authorized_v1_api_instance() -> ApiInstance {
         dotenv::var("API_V1_LOGIN_PASSWORD")
             .expect("env incorrect");
 
-    login_with_email(&mut api, &LoginWithEmailParams {
+    let result = login_with_email(&LoginWithEmailParams {
         email: &email,
         password: &password
     }).await.unwrap_or_else(|_| panic!("Could not get authorized api instance, login failed."));
 
-    api
+    result.1
 }

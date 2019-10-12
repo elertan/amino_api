@@ -18,13 +18,13 @@ pub struct UpdateProfileParams<'a> {
     pub enabled_wall_commenting: bool,
 }
 
-impl<'a> Into<UpdateProfilePostData<'a>> for UpdateProfileParams<'a> {
+impl<'a> Into<UpdateProfilePostData<'a>> for &UpdateProfileParams<'a> {
     fn into(self) -> UpdateProfilePostData<'a> {
         UpdateProfilePostData {
             nickname: self.nickname,
             content: self.content,
             icon: self.icon,
-            media_list: self.media_list,
+            media_list: self.media_list.clone(),
             timestamp: Timestamp::from_current_time(),
             extensions: UpdateProfileExtensions {
                 style: None,
@@ -34,8 +34,8 @@ impl<'a> Into<UpdateProfilePostData<'a>> for UpdateProfileParams<'a> {
                 featured_type: 0,
                 hide_user_profile: false,
                 is_member_of_team_amino: false,
-                privileged_of_chat_invite_request: ZeroOneBoolean::new(self.enabled_chat_invite),
-                privileged_of_comment_on_user_profile: ZeroOneBoolean::new(self.enabled_wall_commenting),
+                privileged_of_chat_invite_request: ZeroOneBoolean::from_bool(self.enabled_chat_invite),
+                privileged_of_comment_on_user_profile: ZeroOneBoolean::from_bool(self.enabled_wall_commenting),
             }
         }
     }
@@ -79,20 +79,25 @@ pub struct UpdateProfilePostData<'a> {
     pub extensions: UpdateProfileExtensions,
 }
 
-pub async fn update_profile<'a>(api: &ApiInstance, community: &Community, params: &UpdateProfileParams<'a>) -> Result<ApiResponse<UpdateProfileResult>, failure::Error> {
+pub async fn update_profile(api: &ApiInstance, community: &Community, params: &UpdateProfileParams<'_>) -> Result<ApiResponse<UpdateProfileResult>, failure::Error> {
     let client = &api.client;
     let community_id = community.get_url_identifier();
     let partial_url = format!("{}/s/user-profile/{}", community_id.as_str(), &params.uid);
     let url = api.base_url.create_full_url(partial_url.as_str());
 
     let post_data: UpdateProfilePostData = params.into();
-    let result = client
+    let json_data = serde_json::to_string(&post_data).unwrap();
+    dbg!(json_data);
+    let response = client
         .post(&url)
         .json(&post_data)
         .send()
-        .await?
-        .json()
         .await?;
+    dbg!(&response);
+    let text = response.text().await?;
+    dbg!(&text);
+    let result = serde_json::from_str(&text).unwrap();
+    dbg!(&result);
     Ok(result)
 }
 
@@ -110,14 +115,17 @@ mod tests {
         let api: ApiInstance = rt.block_on(crate::helpers::testing::get_authorized_v1_api_instance());
         let community = Community::from_id(3);
 
+//        let random_data = (0..9).map(|_| Uuid::new_v4())
+//            .fold(String::with_capacity(10*36), |acc, x| acc + &x.to_string().replace("-", ""));
+
         let result: Result<ApiResponse<UpdateProfileResult>, failure::Error> = rt.block_on(
             update_profile(&api, &community, &UpdateProfileParams {
-                uid: Uuid::parse_str("5f00ff5e-d51a-4d07-b2bf-7629b2626e1d").unwrap(),
-                nickname: "Test",
-                content: "Content",
+                uid: Uuid::parse_str("52c2c68a-d43d-4119-a4b1-09bccbbf92c7").unwrap(),
+                nickname: "amino_api test",
+                content: "amino_api test",
                 enabled_chat_invite: true,
                 enabled_wall_commenting: true,
-                icon: "http://pm1.narvii.com/7333/c5fc590b06428d918a01895b30247848e1b866adr1-1024-1022v2_00.jpg",
+                icon: "http://pm1.narvii.com/undefined.jpg",
                 media_list: None,
             })
         );

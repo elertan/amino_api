@@ -58,7 +58,7 @@ pub struct User {
     #[serde(rename = "commentsCount")]
     pub comments_count: u32,
     #[serde(rename = "aminoId")]
-    pub amino_id: String,
+    pub amino_id: Option<String>,
     #[serde(rename = "ndcId")]
     pub ndc_id: u32,
     #[serde(rename = "createdTime")]

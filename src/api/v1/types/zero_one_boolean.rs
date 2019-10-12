@@ -2,8 +2,11 @@
 pub struct ZeroOneBoolean(u8);
 
 impl ZeroOneBoolean {
-    pub fn new(value: bool) -> Self {
-        Self(value)
+    pub fn from_bool(value: bool) -> Self {
+        Self(match value {
+            true => 1,
+            false => 0
+        })
     }
 
     pub fn as_bool(&self) -> bool {

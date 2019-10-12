@@ -21,6 +21,10 @@ impl DeviceId {
     pub fn from_str(data: &str) -> Self {
         DeviceId(data.to_string())
     }
+
+    pub fn as_string(&self) -> &String {
+        &self.0
+    }
 }
 
 impl Serialize for DeviceId {
