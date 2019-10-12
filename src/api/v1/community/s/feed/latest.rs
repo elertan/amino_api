@@ -17,10 +17,10 @@ pub struct FetchLatestPostsResult {
     blog_list: Vec<Blog>,
 }
 
-pub async fn fetch_latest_posts<'a>(
+pub async fn fetch_latest_posts(
     api: &ApiInstance,
     community: &Community,
-    params: &FetchLatestPostsParams<'a>,
+    params: &FetchLatestPostsParams<'_>,
 ) -> Result<ApiResponse<FetchLatestPostsResult>, failure::Error> {
     let client = &api.client;
     let mut partial_url = format!("{}/s/feed/blog-all?pagingType=t&size={}", community.get_url_identifier(), params.size);

@@ -64,7 +64,7 @@ pub struct User {
     #[serde(rename = "createdTime")]
     pub created_time: DateTime<Utc>,
     pub extensions: Option<AccountExtensions>,
-    pub icon: String,
+    pub icon: Option<String>,
     #[serde(rename = "storiesCount")]
     pub stories_count: u32,
     pub age: Option<u32>,
