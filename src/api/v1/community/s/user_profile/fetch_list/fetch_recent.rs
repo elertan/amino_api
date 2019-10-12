@@ -6,8 +6,8 @@ use crate::api::v1::models::user::User;
 
 #[derive(Debug, Clone)]
 pub struct FetchRecentParams {
-    start: Option<u32>,
-    size: u32,
+    pub start: Option<u32>,
+    pub size: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
